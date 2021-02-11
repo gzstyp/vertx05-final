@@ -1,6 +1,7 @@
 package com.fwtai.tool;
 
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
 import java.util.HashMap;
@@ -23,8 +24,22 @@ public final class ToolClient{
   }
 
   /**获取表单请求参数*/
-  public static HashMap<String,String> getParams(final RoutingContext context){
+  public static HashMap<String,String> getParamsMap(final RoutingContext context){
     final HashMap<String,String> result = new HashMap<>();
+    final List<Map.Entry<String,String>> list = context.queryParams().entries();
+    for(int i = 0; i < list.size(); i++){
+      final Map.Entry<String,String> entry = list.get(i);
+      final String value = entry.getValue();
+      if(value != null && !value.isEmpty()){
+        result.put(entry.getKey(),entry.getValue());
+      }
+    }
+    return result;
+  }
+
+  /**获取表单请求参数*/
+  public static JsonObject getParamsJson(final RoutingContext context){
+    final JsonObject result = new JsonObject();
     final List<Map.Entry<String,String>> list = context.queryParams().entries();
     for(int i = 0; i < list.size(); i++){
       final Map.Entry<String,String> entry = list.get(i);
