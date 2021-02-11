@@ -16,8 +16,6 @@ import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.sstore.ClusteredSessionStore;
 import io.vertx.ext.web.sstore.LocalSessionStore;
 import io.vertx.ext.web.sstore.SessionStore;
-import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.FlywayException;
 
 /**
  * 拆分单一职责原则-web模板
@@ -49,6 +47,7 @@ public final class WebVerticle extends AbstractVerticle {
     router.get("/api/v1.0/login").handler(this::login);// http://127.0.0.1:803/api/v1.0/login
     router.get("/api/v1.0/eventBus/:name").handler(this::eventBus);// http://127.0.0.1:803/api/v1.0/eventBus/www.dwz.cloud
     router.get("/api/v1.0/getList").handler(this::getList);// http://127.0.0.1:803/api/v1.0/getList
+    router.get("/api/v1.0/add").handler(this::add);// http://127.0.0.1:803/api/v1.0/add?name=zjy&password=886&age=36
     router.route().handler(StaticHandler.create("web"));//指定root根目录,默认访问路径: http://192.168.3.108:803/
     return Promise.succeededPromise(router).future();//todo 新版本会报错
   }
@@ -74,10 +73,22 @@ public final class WebVerticle extends AbstractVerticle {
     });
   }
 
+  //有参数调用
+  protected void add(final RoutingContext context){
+    final JsonObject params = ToolClient.getParamsJson(context);//传入参数
+    vertx.eventBus().request(ConsumerAddr.add_addr,params,reply->{//reply是响应数据|应答数据|回复数据
+      if(reply != null){
+        ToolClient.getResponse(context).end("消息驱动,"+reply.cause().getMessage());
+      }else{
+        ToolClient.getResponse(context).end("消息驱动,出错,"+reply.result());
+      }
+    });
+  }
+
+  //无参数调用
   protected void getList(final RoutingContext context){
-    final String name = context.pathParam("name");
-    vertx.eventBus().request(ConsumerAddr.list_addr,name,msg->{
-      ToolClient.getResponse(context).end("addr_EventBus_java,"+msg.result().body());
+    vertx.eventBus().request(ConsumerAddr.list_addr,"",reply->{
+      ToolClient.getResponse(context).end("addr_EventBus_java,"+reply.result().body());
     });
   }
 }

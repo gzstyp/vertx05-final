@@ -101,7 +101,7 @@ public final class DatabaseVerticle extends AbstractVerticle {
           }
         });
     }else{
-      msg.fail(202,"参数不完整");
+      msg.fail(202,"参数不完整1");
       //msg.fail(400,"参数不完整");
     }
   }
@@ -114,7 +114,7 @@ public final class DatabaseVerticle extends AbstractVerticle {
         final JsonArray params = new JsonArray()
           .add(json.getString("name"))
           .add(json.getString("password","000000"))
-          .add(json.getInteger("age",8));
+          .add(json.getString("age"));
         Future.<SQLConnection>future(client::getConnection)
           .compose(connection -> this.queryWithPatamters(connection,sql_add,params))
           .compose(this::queryMap)
@@ -127,7 +127,7 @@ public final class DatabaseVerticle extends AbstractVerticle {
           });
       }
     }else{
-      msg.fail(400,"参数不完整");
+      msg.fail(400,"参数不完整2");
     }
   }
 
@@ -148,7 +148,7 @@ public final class DatabaseVerticle extends AbstractVerticle {
           }
         });
     }else{
-      msg.fail(400,"参数不完整");
+      msg.fail(400,"参数不完整3");
     }
   }
 
