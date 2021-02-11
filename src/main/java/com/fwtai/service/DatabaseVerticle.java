@@ -113,7 +113,7 @@ public final class DatabaseVerticle extends AbstractVerticle {
       if(json.containsKey("name")){
         final JsonArray params = new JsonArray()
           .add(json.getString("name"))
-          .add(json.getString("password","000000"))
+          .add(json.getString("password"))
           .add(json.getString("age"));
         Future.<SQLConnection>future(client::getConnection)
           .compose(connection -> this.queryWithPatamters(connection,sql_add,params))
