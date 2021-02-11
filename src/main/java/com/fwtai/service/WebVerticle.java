@@ -47,7 +47,8 @@ public final class WebVerticle extends AbstractVerticle {
     router.get("/api/v1.0/login").handler(this::login);// http://127.0.0.1:803/api/v1.0/login
     router.get("/api/v1.0/eventBus/:name").handler(this::eventBus);// http://127.0.0.1:803/api/v1.0/eventBus/www.dwz.cloud
     router.get("/api/v1.0/getList").handler(this::getList);// http://127.0.0.1:803/api/v1.0/getList
-    router.get("/api/v1.0/add").handler(this::add);// http://127.0.0.1:803/api/v1.0/add?name=zjy&password=886&age=36
+    router.get("/api/v1.0/add").handler(this::add);// http://127.0.0.1:803/api/v1.0/add?name=zjy&password=886&age=37
+    router.get("/api/v1.0/getById/:kid").handler(this::getById);// http://127.0.0.1:803/api/v1.0/getById/1
     router.route().handler(StaticHandler.create("web"));//指定root根目录,默认访问路径: http://192.168.3.108:803/
     return Promise.succeededPromise(router).future();//todo 新版本会报错
   }
@@ -77,17 +78,21 @@ public final class WebVerticle extends AbstractVerticle {
   protected void add(final RoutingContext context){
     final JsonObject params = ToolClient.getParamsJson(context);//传入参数
     vertx.eventBus().request(ConsumerAddr.add_addr,params,reply->{//reply是响应数据|应答数据|回复数据
-      if(reply != null){
-        ToolClient.getResponse(context).end("消息驱动,"+reply.cause().getMessage());
-      }else{
-        ToolClient.getResponse(context).end("消息驱动,出错,"+reply.result());
-      }
+      ToolClient.getResponse(context).end("异步,非阻塞,消息驱动,"+reply.result().body());
+    });
+  }
+
+  protected void getById(final RoutingContext context){
+    final String kid = context.request().getParam("kid");
+    vertx.eventBus().request(ConsumerAddr.byId_addr,kid,reply->{//reply是响应数据|应答数据|回复数据
+      ToolClient.getResponse(context).end("消息驱动,非阻塞,"+reply.result().body());
     });
   }
 
   //无参数调用
   protected void getList(final RoutingContext context){
-    vertx.eventBus().request(ConsumerAddr.list_addr,"",reply->{
+    final String kid = context.request().getParam("kid");
+    vertx.eventBus().request(ConsumerAddr.list_addr,kid,reply->{
       ToolClient.getResponse(context).end("addr_EventBus_java,"+reply.result().body());
     });
   }
