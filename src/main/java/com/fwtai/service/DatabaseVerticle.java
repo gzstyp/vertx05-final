@@ -195,7 +195,7 @@ public final class DatabaseVerticle extends AbstractVerticle {
     }
   }
 
-  //查询list操作,把 final ArrayList<JsonObject> 换成 JsonArray 变快
+  //查询list操作ok,把 final ArrayList<JsonObject> 换成 JsonArray 变快
   protected void queryList(final Message<Object> msg){
     mySQLPool.getConnection((result) ->{
       if(result.succeeded()){
